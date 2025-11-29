@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { AdminContext } from "../contex/Admincontex";
+import { AdminContext } from "../context/Admincontex";
 import { toast } from "react-toastify";
 
 const AdminDashboard = () => {
@@ -162,13 +162,12 @@ const AdminDashboard = () => {
                   <td>{new Date(appt.appointmentDate).toLocaleDateString()}</td>
                   <td>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs md:text-sm ${
-                        appt.status === "confirmed"
+                      className={`px-3 py-1 rounded-full text-xs md:text-sm ${appt.status === "confirmed"
                           ? "bg-green-100 text-green-600"
                           : appt.status === "cancelled"
-                          ? "bg-red-100 text-red-600"
-                          : "bg-yellow-100 text-yellow-600"
-                      }`}
+                            ? "bg-red-100 text-red-600"
+                            : "bg-yellow-100 text-yellow-600"
+                        }`}
                     >
                       {appt.status}
                     </span>

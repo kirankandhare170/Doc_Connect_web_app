@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react'
-import { AdminContext } from '../contex/Admincontex'
+import { AdminContext } from '../context/Admincontex'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-const Login =  () => {
+const Login = () => {
 
 
   const [state, setState] = useState('admin')
@@ -10,18 +10,18 @@ const Login =  () => {
   const [password, setPassword] = useState('')
 
   const { setAtoken, baseUrl } = useContext(AdminContext)
-   const navigate = useNavigate()
+  const navigate = useNavigate()
   const submitHand = async (e) => {
     e.preventDefault()
     try {
-      
-       
+
+
       if (state === 'admin') {
-        const {data} = await  axios.post(baseUrl + "/api/v1/admin/login", { email, password })
+        const { data } = await axios.post(baseUrl + "/api/v1/admin/login", { email, password })
         localStorage.setItem("atoken", data.token)
         setAtoken(data.token)
         console.log(data)
-        
+
       }
     } catch (error) {
       console.error(error)
@@ -30,8 +30,8 @@ const Login =  () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form 
-        onSubmit={submitHand} 
+      <form
+        onSubmit={submitHand}
         className="bg-white p-8 rounded-2xl shadow-md w-96"
       >
         <h2 className="text-2xl font-bold text-gray-800 text-center mb-6 capitalize">
@@ -74,7 +74,7 @@ const Login =  () => {
         {state === 'admin' ? (
           <p className="text-sm text-gray-600 mt-4 text-center">
             Doctor login?{" "}
-            <span 
+            <span
               className="text-indigo-600 font-semibold cursor-pointer hover:underline"
               onClick={() => setState('Doctor')}
             >
@@ -84,7 +84,7 @@ const Login =  () => {
         ) : (
           <p className="text-sm text-gray-600 mt-4 text-center">
             Admin login?{" "}
-            <span 
+            <span
               className="text-indigo-600 font-semibold cursor-pointer hover:underline"
               onClick={() => setState('admin')}
             >

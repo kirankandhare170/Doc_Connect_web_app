@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { assets } from "../assets/assets";
-import { AdminContext } from "../contex/Admincontex";
+import { AdminContext } from "../context/Admincontex";
 import axios from "axios";
 
 const AddDoctors = () => {
@@ -122,7 +122,7 @@ const AddDoctors = () => {
               className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
             >
               {Array.from({ length: 10 }, (_, i) => (
-                <option key={i}>{i + 1} {i===0?"year":"years"}</option>
+                <option key={i}>{i + 1} {i === 0 ? "year" : "years"}</option>
               ))}
             </select>
           </div>

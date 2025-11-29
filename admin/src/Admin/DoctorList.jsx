@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AdminContext } from "../contex/Admincontex";
+import { AdminContext } from "../context/Admincontex";
 import axios from "axios";
 
 const DoctorList = () => {
