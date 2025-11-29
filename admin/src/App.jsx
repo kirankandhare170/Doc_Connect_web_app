@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import Login from "./pages/login";
-import { AdminContext } from "./context/Admincontex";
+import { AdminContext } from "./context/AdminContext";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import { Routes, Route } from "react-router-dom";

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { assets } from "../assets/assets";
-import { AdminContext } from "../context/Admincontex";
+import { AdminContext } from "../context/AdminContext";
 import axios from "axios";
 
 const AddDoctors = () => {

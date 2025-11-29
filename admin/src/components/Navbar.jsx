@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { AdminContext } from "../context/Admincontex";
+import { AdminContext } from "../context/AdminContext";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
