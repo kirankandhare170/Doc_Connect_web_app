@@ -16,7 +16,7 @@ const _dirname = path.resolve();
 
 
 app.use(cors({
-  origin: ["https://doc-connect-app-inky.vercel.app", "https://doc-connect-admin.vercel.app/"],
+  origin: ["https://doc-connect-app-inky.vercel.app", "https://doc-connect-admin.vercel.app"],
   credentials: true
 }));
 //app.use(cors())
