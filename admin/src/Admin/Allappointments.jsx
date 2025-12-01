@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-
+import { AdminContext } from "../context/AdminContext";
 const AllAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-
+   const { baseUrl } = useContext(AdminContext);
   useEffect(() => {
     fetchAllAppointments();
   }, []);
 
   const fetchAllAppointments = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/admin/appointments");
+      const res = await axios.get(`${baseUrl}/api/admin/appointments`);
       setAppointments(res.data);
     } catch (error) {
       console.error(error);
@@ -24,7 +24,7 @@ const AllAppointments = () => {
 
   const handleStatusChange = async (id, status) => {
     try {
-      await axios.put(`http://localhost:3000/api/admin/appointments/${id}`, { status });
+      await axios.put(`${baseUrl}/api/admin/appointments/${id}`, { status });
       toast.success(`Status updated to ${status}`);
       setAppointments((prev) =>
         prev.map((appt) => (appt._id === id ? { ...appt, status } : appt))

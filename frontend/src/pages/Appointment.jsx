@@ -21,7 +21,7 @@ const Appointment = () => {
     const fetchDoctor = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3000/api/v1/admin/getdoctor/${docId}`
+          `https://doc-connect-5g3k.onrender.com/api/v1/admin/getdoctor/${docId}`
         );
         console.log(res);
         if (res.data.success) {
@@ -67,7 +67,7 @@ const Appointment = () => {
       setLoading(true);
 
       // Send appointment to backend
-      await axios.post("http://localhost:3000/api/appointments", {
+      await axios.post("https://doc-connect-5g3k.onrender.com/api/appointments", {
         doctorId: doctor._id,
         doctorName: doctor.name,
         speciality: doctor.speciality,

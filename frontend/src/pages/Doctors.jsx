@@ -12,7 +12,7 @@ const Doctors = () => {
     const fetchDoctors = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:3000/api/v1/admin/getdoctors");
+        const res = await axios.get("https://doc-connect-5g3k.onrender.com/api/v1/admin/getdoctors");
         if (res.data.success) {
           setDoctors(res.data.doctors);
 

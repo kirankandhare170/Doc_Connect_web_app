@@ -16,7 +16,7 @@ export default function MyProfile() {
   const fetchProfile = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/api/v1/user/getuserprofile/${userId}`
+        `https://doc-connect-5g3k.onrender.com/api/v1/user/getuserprofile/${userId}`
       );
       const userData = res.data.user;
       setUser(userData);
@@ -58,7 +58,7 @@ export default function MyProfile() {
       if (image) formData.append("image", image);
 
       const res = await axios.post(
-        "http://localhost:3000/api/v1/user/updateProfile",
+        "https://doc-connect-5g3k.onrender.com/api/v1/user/updateProfile",
         formData
       );
 

@@ -15,7 +15,7 @@ export default function ResetPassword() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/v1/user/reset-password",
+        "https://doc-connect-5g3k.onrender.com/api/v1/user/reset-password",
         { email, newPassword }
       );
 

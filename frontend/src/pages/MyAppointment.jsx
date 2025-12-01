@@ -11,7 +11,7 @@ export default function MyAppointments() {
   const fetchAppointments = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:3000/api/appointments/${email}`);
+      const res = await axios.get(`https://doc-connect-5g3k.onrender.com/api/appointments/${email}`);
       setAppointments(res.data);
     } catch (error) {
       console.error("Error fetching appointments:", error);
@@ -30,7 +30,7 @@ export default function MyAppointments() {
     if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
 
     try {
-      const res = await axios.delete(`http://localhost:3000/api/appointments/cancel/${id}`);
+      const res = await axios.delete(`https://doc-connect-5g3k.onrender.com/api/appointments/cancel/${id}`);
       alert(res.data.message);
       fetchAppointments(); // refresh after cancel
     } catch (error) {

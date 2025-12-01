@@ -14,7 +14,7 @@ export default function ForgotPassword() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/v1/user/forgot-password",
+        "https://doc-connect-5g3k.onrender.com/api/v1/user/forgot-password",
         { email }
       );
 

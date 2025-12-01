@@ -16,7 +16,7 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:3000/api/v1/user/login", {
+      const res = await axios.post("https://doc-connect-5g3k.onrender.com/api/v1/user/login", {
         email,
         password,
       });
@@ -39,7 +39,7 @@ export default function Login() {
   // ---------- Google Login ----------
   const handleGoogleLogin = async (credentialResponse) => {
     try {
-      const res = await axios.post("http://localhost:3000/api/v1/user/google-auth", {
+      const res = await axios.post("https://doc-connect-5g3k.onrender.com/api/v1/user/google-auth", {
         token: credentialResponse.credential,
       });
 
