@@ -1,29 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { doctors } from "../assets/assets";
 import axios from "axios";
 import { toast } from "react-toastify";
 import emailjs from "emailjs-com";
 
 const Appointment = () => {
   const { docId } = useParams();
-  const doctor = doctors.find((doc) => doc._id === docId);
 
+  const [doctor, setDoctor] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     date: "",
     time: "",
   });
-  const [loading, setLoading] = useState(false);
 
-  if (!doctor) {
-    return <p className="text-center py-10 text-red-500 font-semibold">Doctor not found</p>;
-  }
+  // Fetch single doctor by ID
+  useEffect(() => {
+    const fetchDoctor = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/api/v1/admin/getdoctor/${docId}`
+        );
+        console.log(res);
+        if (res.data.success) {
+          setDoctor(res.data.doctor);
+        }
+      } catch (error) {
+        console.error("Failed to fetch doctor:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleChange = (e) => {
+    fetchDoctor();
+  }, [docId]);
+
+  if (loading) return <p className="text-center py-10">Loading...</p>;
+
+  if (!doctor)
+    return (
+      <p className="text-center py-10 text-red-500 font-semibold">
+        Doctor not found
+      </p>
+    );
+
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,7 +66,7 @@ const Appointment = () => {
     try {
       setLoading(true);
 
-      // Send appointment data to backend
+      // Send appointment to backend
       await axios.post("http://localhost:3000/api/appointments", {
         doctorId: doctor._id,
         doctorName: doctor.name,
@@ -50,7 +74,7 @@ const Appointment = () => {
         ...formData,
       });
 
-      // Send Email notification using EmailJS
+      // Send Email notification
       await emailjs.send(
         "service_88lqnls",
         "template_wlmsvgh",
@@ -61,16 +85,15 @@ const Appointment = () => {
           time: formData.time,
           doctorName: doctor.name,
           speciality: doctor.speciality,
-          message: "New appointment booked",
         },
         "n3JD2HNk5x_NNp7M-"
       );
 
-      toast.success("Appointment booked & email sent!");
+      toast.success("Appointment booked successfully!");
       setFormData({ name: "", email: "", date: "", time: "" });
     } catch (error) {
       console.error(error);
-      toast.error("Failed to book appointment or send email.");
+      toast.error("Failed to book appointment.");
     } finally {
       setLoading(false);
     }
@@ -78,27 +101,27 @@ const Appointment = () => {
 
   return (
     <div className="px-6 md:px-20 py-12">
-      
       {/* Doctor Details */}
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-8 bg-white p-6 rounded-2xl shadow-md">
+      <div className="flex flex-col md:flex-row items-center gap-8 bg-white p-6 rounded-2xl shadow-md">
         <img
           src={doctor.image}
           alt={doctor.name}
-          className="w-40 h-40 object-cover rounded-full shadow-lg"
+          className="w-40 h-40 object-cover rounded-full"
         />
-        <div className="flex-1 space-y-2">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">{doctor.name}</h1>
-          <p className="text-blue-600 font-medium">{doctor.speciality}</p>
-          <p className="text-gray-600">{doctor.about}</p>
-          <p className="text-gray-700">Degree: {doctor.degree}</p>
-          <p className="text-gray-700">Experience: {doctor.experience}</p>
-          <p className="text-gray-700">Consultation Fee: ${doctor.fees}</p>
+
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold">{doctor.name}</h1>
+          <p className="text-blue-600">{doctor.speciality}</p>
+          <p>{doctor.about}</p>
+          <p>Degree: {doctor.degree}</p>
+          <p>Experience: {doctor.experience}</p>
+          <p>Fees: ₹{doctor.fees}</p>
         </div>
       </div>
 
-      {/* Appointment Form */}
-      <div className="mt-10 bg-white p-6 md:p-8 rounded-2xl shadow-md max-w-lg mx-auto">
-        <h2 className="text-xl md:text-2xl font-semibold mb-6 text-gray-800 text-center">
+      {/* Form */}
+      <div className="mt-10 bg-white p-8 rounded-2xl shadow-md max-w-lg mx-auto">
+        <h2 className="text-2xl font-semibold mb-6 text-center">
           Book an Appointment
         </h2>
 
@@ -109,7 +132,7 @@ const Appointment = () => {
             value={formData.name}
             onChange={handleChange}
             placeholder="Your Name"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border rounded-lg"
           />
           <input
             type="email"
@@ -117,20 +140,21 @@ const Appointment = () => {
             value={formData.email}
             onChange={handleChange}
             placeholder="Your Email"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border rounded-lg"
           />
           <input
             type="date"
             name="date"
             value={formData.date}
             onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border rounded-lg"
           />
+
           <select
             name="time"
             value={formData.time}
             onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border rounded-lg"
           >
             <option value="">-- Select Time Slot --</option>
             {["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"].map(
@@ -145,7 +169,7 @@ const Appointment = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition disabled:opacity-50"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg"
           >
             {loading ? "Booking..." : "Confirm Booking"}
           </button>

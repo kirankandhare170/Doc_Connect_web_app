@@ -1,68 +1,156 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { assets } from "../assets/assets";
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { assets } from "./../assets/assets";
+import axios from "axios";
 
-const Header = () => {
+const Nav = () => {
   const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const [userImage, setUserImage] = useState(null);
 
-  const handleBookAppointment = () => {
-    const token = localStorage.getItem("token"); // check if user logged in
-    if (token) {
-      navigate("/doctors"); // redirect to all doctors page
-    } else {
-      navigate("/login"); // redirect to login page
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+
+  const fetchUser = async () => {
+    if (!token || !userId) return;
+
+    const localImage = localStorage.getItem("userImage");
+    if (localImage) {
+      setUserImage(localImage);
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/v1/user/getuserprofile",
+        { userId }
+      );
+      const image = res.data.user.image;
+      localStorage.setItem("userImage", image);
+      setUserImage(image);
+    } catch (err) {
+      console.log("Navbar user fetch error:", err);
     }
   };
 
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const logoutHandler = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userImage");
+    navigate("/login");
+  };
+
   return (
-    <div className="pt-20 md:pt-24 flex flex-col-reverse md:flex-row items-center justify-between px-4 sm:px-6 md:px-20 pb-8 md:pb-14 bg-gradient-to-br from-blue-50 via-blue-100 to-white overflow-hidden">
+    <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+      {/* NAVBAR CONTENT */}
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
 
-      {/* LEFT SIDE */}
-      <div className="md:w-1/2 text-center md:text-left space-y-4 sm:space-y-5 md:space-y-7">
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-800 leading-snug sm:leading-tight md:leading-tight">
-          Book Appointment <br />
-          <span className="text-blue-600">With Trusted Doctors</span>
-        </h1>
-
-        <p className="text-gray-600 text-xs sm:text-sm md:text-lg max-w-full sm:max-w-sm md:max-w-md mx-auto md:mx-0">
-          Your health, your time — find expert doctors and schedule instantly.
-        </p>
-
-        {/* USERS SECTION */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-4 justify-center md:justify-start mt-3 sm:mt-4">
-          <img
-            src={assets.group_profiles}
-            alt="Group Profiles"
-            className="w-12 sm:w-14 md:w-20 rounded-full shadow-sm"
-          />
-          <p className="text-gray-600 text-xs sm:text-sm md:text-sm max-w-xs text-center sm:text-left">
-            Over <span className="font-semibold text-blue-700">10,000+</span>{" "}
-            patients trust our platform.
-          </p>
+        {/* LOGO */}
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+          <img src={assets.logo} className="h-10 w-10" alt="Logo" />
+          <h1 className="text-xl font-bold text-blue-600">Doc Connect</h1>
         </div>
 
-        {/* CTA BUTTON */}
-        <button
-          onClick={handleBookAppointment}
-          className="mt-3 sm:mt-4 md:mt-6 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 sm:px-6 md:px-8 py-2 sm:py-3 md:py-3 rounded-full shadow-lg transition transform hover:scale-105"
-        >
-          Book Appointment
-          <img src={assets.arrow_icon} alt="arrow" className="w-3 sm:w-4 md:w-5" />
-        </button>
+        {/* DESKTOP MENU */}
+        <ul className="hidden md:flex items-center gap-8 text-gray-700 font-medium">
+          <NavLink to="/" className="hover:text-blue-600 transition">HOME</NavLink>
+          <NavLink to="/doctors" className="hover:text-blue-600 transition">ALL DOCTORS</NavLink>
+          <NavLink to="/about" className="hover:text-blue-600 transition">ABOUT</NavLink>
+          <NavLink to="/contact" className="hover:text-blue-600 transition">CONTACT</NavLink>
+        </ul>
+
+        {/* RIGHT SIDE */}
+        <div className="flex items-center gap-4">
+
+          {/* LOGIN / PROFILE */}
+          {token ? (
+            <div className="relative">
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                <img
+                  src={userImage || assets.upload_area}
+                  alt="profile"
+                  className="h-10 w-10 rounded-full border object-cover"
+                />
+                <img src={assets.dropdown_icon} className="w-4 h-4" alt="dropdown" />
+              </div>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border py-2 animate-fadeIn">
+                  <p
+                    onClick={() => navigate("/my-profile")}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    My Profile
+                  </p>
+                  <p
+                    onClick={() => navigate("/my-appointments")}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    My Appointments
+                  </p>
+                  <p
+                    onClick={logoutHandler}
+                    className="px-4 py-2 text-red-600 hover:bg-gray-100 cursor-pointer"
+                  >
+                    Logout
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate("/register")}
+              className="hidden md:block px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
+            >
+              Create Account
+            </button>
+          )}
+
+          {/* MOBILE MENU BUTTON */}
+          <button
+            className="md:hidden flex flex-col gap-1"
+            onClick={() => setMobileMenu(!mobileMenu)}
+          >
+            <span className="w-6 h-0.5 bg-black"></span>
+            <span className="w-6 h-0.5 bg-black"></span>
+            <span className="w-6 h-0.5 bg-black"></span>
+          </button>
+        </div>
       </div>
 
-      {/* RIGHT SIDE IMAGE */}
-      <div className="md:w-1/2 mt-6 md:mt-0 relative w-full max-w-xs sm:max-w-sm md:max-w-lg mx-auto">
-        <div className="absolute inset-0 bg-blue-300 opacity-20 blur-3xl rounded-full"></div>
+      {/* MOBILE MENU DROPDOWN */}
+      {mobileMenu && (
+        <div className="md:hidden bg-white border-t shadow-sm py-3 animate-fadeIn px-6">
+          <ul className="flex flex-col gap-4 text-gray-700 font-medium">
+            <NavLink to="/" onClick={() => setMobileMenu(false)}>HOME</NavLink>
+            <NavLink to="/doctors" onClick={() => setMobileMenu(false)}>ALL DOCTORS</NavLink>
+            <NavLink to="/about" onClick={() => setMobileMenu(false)}>ABOUT</NavLink>
+            <NavLink to="/contact" onClick={() => setMobileMenu(false)}>CONTACT</NavLink>
 
-        <img
-          src={assets.header_img}
-          alt="Doctors"
-          className="relative w-full drop-shadow-xl animate-fadeIn"
-        />
-      </div>
-    </div>
+            {!token && (
+              <button
+                onClick={() => {
+                  navigate("/register");
+                  setMobileMenu(false);
+                }}
+                className="mt-2 px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
+              >
+                Create Account
+              </button>
+            )}
+          </ul>
+        </div>
+      )}
+    </nav>
   );
 };
 
-export default Header;
+export default Nav;

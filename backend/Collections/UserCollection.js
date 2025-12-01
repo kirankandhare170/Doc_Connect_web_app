@@ -1,47 +1,19 @@
+// controllers/userController.js  (updated)
 const newusers1 = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require('cloudinary').v2;
 const { OAuth2Client } = require("google-auth-library");
-// REGISTER
-//exports.RegisterCollection = async (req, res) => {
-  //try {
- //   const { name, email, password, phone } = req.body;
+const dotenv = require("dotenv");
+dotenv.config();
 
-  //  const existingUser = await newusers1.findOne({ email });
-  //  if (existingUser)
-  //    return res.status(400).json({ success: false, message: "Email already exists" });
-//
-  //  const hashed = await bcrypt.hash(password, 10);
-
-  //  const user = await newusers1.create({
-  //    name,
-  //    email,
-  //    password: hashed,
-  //    phone,
-  //    image: ""   // default empty image
-  //  });
-//
-  //  res.json({ success: true, message: "Registered Successfully", user });
-  //} catch (err) {
-  //  res.status(500).json({ success: false, message: "Registration Error", err });
- // }
-//};
-
-
-const dotenv = require("dotenv")
-const transporter = require("../config/sendEmail");
+const mailer = require("../config/mailer"); // new mailer using Brevo
 const crypto = require("crypto");
 
-
 // REGISTER WITH OTP VERIFICATION
-
-
-
 exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
-
     const user = await newusers1.findOne({ verificationToken: token });
 
     if (!user)
@@ -56,36 +28,6 @@ exports.verifyEmail = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-
-
-
-
-
-// LOGIN
-//exports.LoginCollection = async (req, res) => {
- // try {
- //   const { email, password } = req.body;
-//
-  //  const user = await newusers1.findOne({ email });
-  //  if (!user) return res.status(404).json({ success: false, message: "User not found" });
-
-  //  const match = await bcrypt.compare(password, user.password);
-  //  if (!match)
-  //    return res.status(400).json({ success: false, message: "Invalid Password" });
-
-  //  const token = jwt.sign({ id: user._id }, "secretkey");
-
-  //  res.json({
-   //   success: true,
-  //    message: "Login Success",
-   //   token,
-  //    user,
-   // });
- // } catch (err) {
- //   res.status(500).json({ success: false, message: "Login Error", err });
- // }
-//};
-
 
 // ---------------------
 // REGISTER WITH OTP
@@ -142,11 +84,12 @@ exports.RegisterCollection = async (req, res) => {
       isVerified: false,
     });
 
-    await transporter.sendMail({
-      from:`Doc Connect <${process.env.SMTP_SENDER}>`,
-      to: email,
+    // Use Brevo mailer
+    await mailer.sendMail({
+      from: { email: process.env.SENDER_EMAIL || process.env.SMTP_SENDER, name: process.env.SENDER_NAME || "Doc Connect" },
+      to: [{ email }],
       subject: "Your Verification OTP",
-      html: `
+      htmlContent: `
         <h2>Hello ${name}</h2>
         <p>Your verification OTP is:</p>
         <h1>${otp}</h1>
@@ -207,6 +150,7 @@ exports.verifyOtp = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
 // ---------------------
 // LOGIN
 // ---------------------
@@ -258,11 +202,11 @@ exports.resendOtp = async (req, res) => {
     user.otpExpires = Date.now() + 5 * 60 * 1000;
     await user.save();
 
-    await transporter.sendMail({
-      from: `Doc Connect<${process.env.SMTP_SENDER}>`,
-      to: email,
+    await mailer.sendMail({
+      from: { email: process.env.SENDER_EMAIL || process.env.SMTP_SENDER, name: process.env.SENDER_NAME || "Doc Connect" },
+      to: [{ email }],
       subject: "Your New OTP",
-      html: `<h2>Your new OTP is:</h2> <h1>${otp}</h1>`,
+      htmlContent: `<h2>Your new OTP is:</h2> <h1>${otp}</h1>`,
     });
 
     res.json({ success: true, message: "New OTP sent" });
@@ -271,8 +215,6 @@ exports.resendOtp = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to resend OTP" });
   }
 };
-
-
 
 // GET USER PROFILE
 exports.getUserProfile = async (req, res) => {
@@ -301,10 +243,7 @@ exports.getUserProfile = async (req, res) => {
   }
 };
 
-
 // UPDATE PROFILE
-
-
 exports.updateUserProfile = async (req, res) => {
   try {
     const { userId, name, phone } = req.body;
@@ -325,7 +264,7 @@ exports.updateUserProfile = async (req, res) => {
     const updatedUser = await newusers1.findByIdAndUpdate(
       userId,
       updateData,
-      { new: true, runValidators: true } // ensures required fields for normal users
+      { new: true, runValidators: true }
     );
 
     if (!updatedUser) {
@@ -349,11 +288,6 @@ exports.updateUserProfile = async (req, res) => {
     });
   }
 };
-
-
-
-
-
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -399,20 +333,14 @@ exports.googleAuth = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       message: "Google authentication failed",
-      error: err.message
+      error: err.message,
     });
   }
 };
 
-
 //forgot password system 
-
-
-
-const { sendOTP } = require("../config/sendEmail");
-
 // ------------------ FORGOT PASSWORD ------------------
 exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -430,7 +358,8 @@ exports.forgotPassword = async (req, res) => {
     user.resetOtpExpire = Date.now() + 10 * 60 * 1000; // 10 min
     await user.save();
 
-    await sendOTP(email, otp);
+    // use mailer.sendOTP helper
+    await mailer.sendOTP(email, otp, user.name);
 
     return res.json({ success: true, message: "OTP sent to email" });
   } catch (err) {
@@ -485,9 +414,6 @@ exports.resetPassword = async (req, res) => {
 
 
 
-
-const sendEmail = require("../config/sendcontact");
-
 exports.sendContactMessage = async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -499,28 +425,20 @@ exports.sendContactMessage = async (req, res) => {
       });
     }
 
-    // Email content to admin
-    await sendEmail({
-      fromEmail: email,                    // USER EMAIL
-      to: process.env.ADMIN_EMAIL,         // ADMIN EMAIL
-      subject: `New Contact Message from ${name}`,
-      html: `
-        <h2>New Contact Form Message</h2>
-        <p><b>Name:</b> ${name}</p>
-        <p><b>Email:</b> ${email}</p>
-        <p><b>Message:</b></p>
-        <p>${message}</p>
-      `,
-      text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+    await mailer.sendContact({
+      fromEmail: email,
+      name,
+      message,
+      toEmail: process.env.ADMIN_EMAIL
     });
 
     return res.status(200).json({
       success: true,
-      message: "Message sent successfully!",
+      message: "Message sent successfully",
     });
 
-  } catch (err) {
-    console.error("Contact form error:", err);
+  } catch (error) {
+    console.error("Email Error:", error);
     return res.status(500).json({
       success: false,
       message: "Email sending failed.",

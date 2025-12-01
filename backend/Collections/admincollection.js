@@ -205,12 +205,39 @@ const deleteDoctor = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+  const  getSingleDoctor = async (req, res) => {
+  try {
+    const { docId } = req.params;
+
+    const doctor = await doctorModel.findById(docId);
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: "Doctor not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      doctor,
+    });
+  } catch (error) {
+    console.error("Get doctor by ID error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+
 module.exports ={ addDoctor, loginAdmin, getDoctors, changeAvailability,getDashboardData,
   toggleDoctorAvailability: changeAvailability, // alias for routes
   updateAppointmentStatus,
   getAllUsers,
   getAllDoctors: getDoctors, // alias
-  getAllAppointments,deleteDoctor}
+  getAllAppointments,deleteDoctor,getSingleDoctor  }
 
 
 

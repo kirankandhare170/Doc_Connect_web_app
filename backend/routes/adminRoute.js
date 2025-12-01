@@ -12,6 +12,8 @@ const {
   updateAppointmentStatus,
   toggleDoctorAvailability,
    deleteDoctor,
+  getSingleDoctor,
+   
 } = require("../Collections/admincollection");
 
 // ------------------- ADMIN AUTH -------------------
@@ -22,6 +24,8 @@ router.post("/admin/add-doctor", upload.single("image"), addDoctor);
 router.get("/admin/getdoctors", getDoctors);
 router.patch("/admin/change", changeAvailability); // toggle availability
 router.delete("/admin/delete-doctor/:id", deleteDoctor);
+router.get("/admin/getdoctor/:docId", getSingleDoctor);
+
 // ------------------- DASHBOARD -------------------
 router.get("/admin/dashboard", getDashboardData);
 

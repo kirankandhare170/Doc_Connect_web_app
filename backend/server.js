@@ -36,16 +36,6 @@ app.use('/api/v1', require('./routes/adminRoute'))
 
 
 // Admin frontend
-app.use("/admin", express.static(path.join(__dirname, "../admin/dist")));
-app.get(/^\/admin(\/.*)?$/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../admin/dist/index.html"));
-});
-
-// User frontend
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-app.get(/^\/(?!api|admin).*$/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-});
 
 
 
