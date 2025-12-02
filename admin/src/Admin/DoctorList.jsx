@@ -8,7 +8,7 @@ const DoctorList = () => {
 
   const getDoctors = async () => {
     try {
-      const { data } = await axios.get(`${baseUrl}/api/v1/admin/getdoctors`);
+      const { data } = await axios.get(`${baseUrl}/api/v1/admin/admin/getdoctors`);
       setDoctors(data.doctors);
     } catch (error) {
       console.error("Error fetching doctors:", error);
@@ -17,7 +17,7 @@ const DoctorList = () => {
 
   const toggleAvailability = async (doctorId) => {
     try {
-      await axios.patch(`${baseUrl}/api/v1/admin/change`, { userId: doctorId });
+      await axios.patch(`${baseUrl}/api/v1/admin/admin/change`, { userId: doctorId });
       setDoctors((prev) =>
         prev.map((doc) =>
           doc._id === doctorId ? { ...doc, available: !doc.available } : doc
@@ -64,7 +64,7 @@ const DoctorList = () => {
             <button
               onClick={async () => {
                 try {
-                  await axios.delete(`${baseUrl}/api/v1/admin/delete-doctor/${doc._id}`);
+                  await axios.delete(`${baseUrl}/api/v1/admin/admin/delete-doctor/${doc._id}`);
                   setDoctors((prev) => prev.filter((d) => d._id !== doc._id));
                 } catch (error) {
                   console.error("Failed to delete doctor:", error);

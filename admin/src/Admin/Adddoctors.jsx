@@ -33,7 +33,7 @@ const AddDoctors = () => {
       formData.append("about", about);
 
       const { data } = await axios.post(
-        `${baseUrl}/api/v1/admin/add-doctor`,
+        `${baseUrl}/api/v1/admin/admin/add-doctor`,
         formData
       );
 

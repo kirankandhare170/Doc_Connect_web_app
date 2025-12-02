@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1', require('./routes/UserRoute'))
 app.use("/api/appointments", require('./routes/appointmentRoutes'));
 app.use("/api/admin", require('./routes/admin'));
-app.use('/api/v1', require('./routes/adminRoute'))
+app.use('/api/v1/admin', require('./routes/adminRoute'))
 //app.use('/api/v1', require('./Route/todoroute'))
 
 
