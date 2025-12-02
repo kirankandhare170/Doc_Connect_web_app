@@ -1,58 +1,45 @@
-const express = require('express')
-const dotenv = require('dotenv')
-const connectDb = require('./config/db')
-const cors = require('cors')
-const connectCloudinary = require('./config/cloudinary')
+const express = require('express');
+const dotenv = require('dotenv');
+const connectDb = require('./config/db');
+const cors = require('cors');
+const connectCloudinary = require('./config/cloudinary');
 
-const path = require("path");
-
-dotenv.config()
-const app = express()
+dotenv.config();
+const app = express();
 
 const dns = require('dns');
-dns.setDefaultResultOrder('ipv4first'); // Force Node.js to prefer IPv4
+dns.setDefaultResultOrder('ipv4first');
 
-const _dirname = path.resolve();
+// CORS
+app.use(
+  cors({
+    origin: [
+      "https://doc-connect-app-inky.vercel.app",
+      "https://doc-connect-admin.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 
-
-app.use(cors({
-  origin: ["https://doc-connect-app-inky.vercel.app", "https://doc-connect-admin.vercel.app"],
-  credentials: true
-}));
-//app.use(cors())
-app.use(express.json())
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// middleware
-app.use('/api/v1', require('./routes/UserRoute'))
-app.use("/api/appointments", require('./routes/appointmentRoutes'));
-app.use("/api/admin", require('./routes/admin'));
-app.use('/api/v1/admin', require('./routes/adminRoute'))
-//app.use('/api/v1', require('./Route/todoroute'))
 
+// API ROUTES ONLY (NO FRONTEND SERVING)
+app.use('/api/v1', require('./routes/UserRoute'));
+app.use('/api/appointments', require('./routes/appointmentRoutes'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/v1/admin', require('./routes/adminRoute'));
 
+// Remove ALL static hosting
+// Remove ALL index.html serving
+// Backend should ONLY provide API routes
 
+// Connect DB & Cloudinary
+connectCloudinary();
+connectDb();
 
-// API routes
-
-
-// Admin frontend
-app.use("/admin", express.static(path.join(__dirname, "../admin/dist")));
-app.get(/^\/admin(\/.*)?$/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../admin/dist/index.html"));
-});
-
-// User frontend
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-app.get(/^\/(?!api|admin).*$/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
-});
-
-
-
-connectCloudinary()
-// port 
-connectDb()
+// Start server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`server  running on port ${port}`)
-})
+  console.log(`Server running on port ${port}`);
+});
