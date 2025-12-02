@@ -246,48 +246,31 @@ exports.getUserProfile = async (req, res) => {
 // UPDATE PROFILE
 exports.updateUserProfile = async (req, res) => {
   try {
-    const { userId, name, phone } = req.body;
+    const user = await newusers1.findById(req.body.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Build updateData object conditionally
-    let updateData = {};
-    if (name) updateData.name = name;
-    if (phone) updateData.phone = phone;
-
-    // Upload image if provided
+    // Upload image only if provided
     if (req.file) {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: "image",
-      });
-      updateData.image = uploadResult.secure_url;
+      try {
+        const result = await cloudinary.uploader.upload(req.file.path, { folder: "user_profiles" });
+        user.image = result.secure_url;
+      } catch (cloudErr) {
+        console.error("Cloudinary upload failed:", cloudErr.message);
+        user.image = user.image || DEFAULT_PROFILE; // fallback
+      }
     }
 
-    const updatedUser = await newusers1.findByIdAndUpdate(
-      userId,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
 
-    if (!updatedUser) {
-      return res.status(404).send({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    res.send({
-      success: true,
-      message: "Profile Updated Successfully",
-      user: updatedUser,
-    });
+    await user.save();
+    res.status(200).json({ success: true, message: "Profile updated", user });
   } catch (err) {
-    console.error("Update profile error:", err);
-    res.status(500).send({
-      success: false,
-      message: "Update Error",
-      error: err.message,
-    });
+    console.error(err);
+    res.status(500).json({ message: "Profile update failed", error: err.message });
   }
 };
+
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
