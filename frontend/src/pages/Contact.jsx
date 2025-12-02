@@ -20,7 +20,7 @@ export default function Contact() {
     setStatus(null);
 
     try {
-      const res = await axios.post("/api/v1/user/contact", formData);
+      const res = await axios.post("https://doc-connect-5g3k.onrender.com/api/v1/user/contact", formData);
       if (res.data.success) {
         setStatus({ type: "success", message: res.data.message });
         setFormData({ name: "", email: "", message: "" });
