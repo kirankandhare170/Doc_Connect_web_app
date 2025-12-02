@@ -23,7 +23,7 @@ const Nav = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/v1/user/getuserprofile",
+        "https://doc-connect-5g3k.onrender.com/api/v1/user/getuserprofile",
         { userId }
       );
       const image = res.data.user.image;
