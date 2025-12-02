@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+const DEFAULT_DOCTOR_IMAGE = "https://res.cloudinary.com/<your-cloud-name>/image/upload/v000000/default-doctor.png";
+
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [specialityData, setSpecialityData] = useState([]);
@@ -14,7 +16,7 @@ const Doctors = () => {
         setLoading(true);
         const res = await axios.get("https://doc-connect-5g3k.onrender.com/api/v1/admin/getdoctors");
         if (res.data.success) {
-          setDoctors(res.data.doctors);
+          setDoctors(res.data.doctors || []);
 
           const specialities = [
             ...new Set(res.data.doctors.map((doc) => doc.speciality)),
@@ -47,6 +49,7 @@ const Doctors = () => {
   return (
     <section className="px-6 md:px-20 py-16 bg-gradient-to-b from-blue-50 to-white">
 
+      {/* Header */}
       <div className="text-center md:text-left mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
           All <span className="text-blue-600">Doctors</span>
@@ -56,6 +59,7 @@ const Doctors = () => {
         </p>
       </div>
 
+      {/* Speciality Filter Buttons */}
       <div className="flex flex-wrap gap-3 mb-10 justify-center md:justify-start">
         <button
           onClick={() => setSelectedSpeciality("All")}
@@ -83,18 +87,18 @@ const Doctors = () => {
         ))}
       </div>
 
+      {/* Doctors Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
         {filteredDoctors.map((doc) => (
           <Link to={`/appointment/${doc._id}`} key={doc._id}>
             <div className="bg-white p-5 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1 transition cursor-pointer text-center">
-              
+
               <img
-                src={doc.image}
+                src={doc.image || DEFAULT_DOCTOR_IMAGE}
                 alt={doc.name}
                 className="w-28 h-28 object-cover rounded-full mx-auto mb-3 shadow-sm"
               />
 
-              {/* Availability Added */}
               <div className="flex justify-center mb-2">
                 <span
                   className={`px-3 py-1 text-xs rounded-full ${

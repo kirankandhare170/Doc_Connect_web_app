@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const DEFAULT_DOCTOR_IMAGE = "https://res.cloudinary.com/<your-cloud-name>/image/upload/v000000/default-doctor.png";
+
 const TopDoctors = () => {
   const navigate = useNavigate();
   const [doctors, setDoctors] = useState([]);
@@ -27,9 +29,7 @@ const TopDoctors = () => {
 
   return (
     <div className="px-6 md:px-20 py-12">
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">
-        Top Doctors to Book
-      </h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-2">Top Doctors to Book</h1>
       <p className="text-gray-600 mb-8">Simply browse through the top trusted doctors</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
@@ -40,12 +40,12 @@ const TopDoctors = () => {
             className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition cursor-pointer text-center"
           >
             <img
-              src={item.image}
+              src={item.image || DEFAULT_DOCTOR_IMAGE} // <-- fallback if no image
               alt={item.name}
               className="w-24 h-24 object-cover rounded-full mx-auto mb-3"
             />
             <div className="flex justify-center mb-2">
-              <span className="px-3 py-1 text-xs bg-green-100 text-green-600 rounded-full">
+              <span className={`px-3 py-1 text-xs rounded-full ${item.available ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}>
                 {item.available ? "Available" : "Unavailable"}
               </span>
             </div>

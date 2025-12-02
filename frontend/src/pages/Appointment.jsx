@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import emailjs from "emailjs-com";
 
+const DEFAULT_DOCTOR_IMAGE = "https://res.cloudinary.com/<your-cloud-name>/image/upload/v000000/default-doctor.png";
+
 const Appointment = () => {
   const { docId } = useParams();
-
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -16,43 +17,35 @@ const Appointment = () => {
     time: "",
   });
 
-  // Fetch single doctor by ID
+  // Fetch single doctor
   useEffect(() => {
     const fetchDoctor = async () => {
       try {
         const res = await axios.get(
           `https://doc-connect-5g3k.onrender.com/api/v1/admin/getdoctor/${docId}`
         );
-        console.log(res);
         if (res.data.success) {
           setDoctor(res.data.doctor);
         }
       } catch (error) {
         console.error("Failed to fetch doctor:", error);
+        toast.error("Failed to fetch doctor info");
       } finally {
         setLoading(false);
       }
     };
-
     fetchDoctor();
   }, [docId]);
 
   if (loading) return <p className="text-center py-10">Loading...</p>;
+  if (!doctor) return <p className="text-center py-10 text-red-500 font-semibold">Doctor not found</p>;
 
-  if (!doctor)
-    return (
-      <p className="text-center py-10 text-red-500 font-semibold">
-        Doctor not found
-      </p>
-    );
-
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const loggedInEmail = localStorage.getItem("userEmail");
+
     if (formData.email !== loggedInEmail) {
       toast.error("Use the email of your logged-in account!");
       return;
@@ -66,7 +59,7 @@ const Appointment = () => {
     try {
       setLoading(true);
 
-      // Send appointment to backend
+      // Save appointment in backend
       await axios.post("https://doc-connect-5g3k.onrender.com/api/appointments", {
         doctorId: doctor._id,
         doctorName: doctor.name,
@@ -74,7 +67,7 @@ const Appointment = () => {
         ...formData,
       });
 
-      // Send Email notification
+      // Send email notification
       await emailjs.send(
         "service_88lqnls",
         "template_wlmsvgh",
@@ -104,7 +97,7 @@ const Appointment = () => {
       {/* Doctor Details */}
       <div className="flex flex-col md:flex-row items-center gap-8 bg-white p-6 rounded-2xl shadow-md">
         <img
-          src={doctor.image}
+          src={doctor.image || DEFAULT_DOCTOR_IMAGE}
           alt={doctor.name}
           className="w-40 h-40 object-cover rounded-full"
         />
@@ -119,11 +112,9 @@ const Appointment = () => {
         </div>
       </div>
 
-      {/* Form */}
+      {/* Appointment Form */}
       <div className="mt-10 bg-white p-8 rounded-2xl shadow-md max-w-lg mx-auto">
-        <h2 className="text-2xl font-semibold mb-6 text-center">
-          Book an Appointment
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center">Book an Appointment</h2>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input
@@ -149,7 +140,6 @@ const Appointment = () => {
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded-lg"
           />
-
           <select
             name="time"
             value={formData.time}
@@ -157,13 +147,11 @@ const Appointment = () => {
             className="w-full px-4 py-2 border rounded-lg"
           >
             <option value="">-- Select Time Slot --</option>
-            {["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"].map(
-              (slot) => (
-                <option key={slot} value={slot}>
-                  {slot}
-                </option>
-              )
-            )}
+            {["09:00 AM", "10:00 AM", "11:00 AM", "02:00 PM", "03:00 PM", "04:00 PM"].map((slot) => (
+              <option key={slot} value={slot}>
+                {slot}
+              </option>
+            ))}
           </select>
 
           <button

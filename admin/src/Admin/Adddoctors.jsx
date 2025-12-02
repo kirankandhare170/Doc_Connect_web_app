@@ -38,10 +38,32 @@ const AddDoctors = () => {
       );
 
       alert(data.message);
+
+      // Reset form
+      setDocImg(null);
+      setName("");
+      setEmail("");
+      setPassword("");
+      setSpeciality("General Physician");
+      setDegree("");
+      setExperience("1 year");
+      setAbout("");
+      setFees("");
+      setAddress("");
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      alert("Failed to add doctor.");
     }
   };
+
+  const inputFields = [
+    { label: "Doctor Name", value: name, setter: setName, type: "text", placeholder: "Enter doctor's name" },
+    { label: "Doctor Email", value: email, setter: setEmail, type: "email", placeholder: "Enter email" },
+    { label: "Password", value: password, setter: setPassword, type: "password", placeholder: "Enter password" },
+    { label: "Degree", value: degree, setter: setDegree, type: "text", placeholder: "e.g. MBBS, MD" },
+    { label: "Fees", value: fees, setter: setFees, type: "number", placeholder: "Consultation fees" },
+    { label: "Address", value: address, setter: setAddress, type: "text", placeholder: "Clinic address" },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6 md:p-10 flex justify-center">
@@ -70,20 +92,14 @@ const AddDoctors = () => {
             type="file"
             id="doc-img"
             hidden
+            accept="image/*"
             onChange={(e) => setDocImg(e.target.files[0])}
           />
         </div>
 
         {/* Form Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {[
-            { label: "Doctor Name", value: name, setter: setName, type: "text", placeholder: "Enter doctor's name" },
-            { label: "Doctor Email", value: email, setter: setEmail, type: "email", placeholder: "Enter email" },
-            { label: "Password", value: password, setter: setPassword, type: "password", placeholder: "Enter password" },
-            { label: "Degree", value: degree, setter: setDegree, type: "text", placeholder: "e.g. MBBS, MD" },
-            { label: "Fees", value: fees, setter: setFees, type: "number", placeholder: "Consultation fees" },
-            { label: "Address", value: address, setter: setAddress, type: "text", placeholder: "Clinic address" },
-          ].map((field, index) => (
+          {inputFields.map((field, index) => (
             <div key={index}>
               <label className="block text-gray-700 font-medium mb-1">{field.label}</label>
               <input
@@ -137,7 +153,7 @@ const AddDoctors = () => {
             rows={4}
             placeholder="Write about the doctor"
             className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-          ></textarea>
+          />
         </div>
 
         {/* Submit */}

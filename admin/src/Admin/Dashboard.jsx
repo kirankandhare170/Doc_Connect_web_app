@@ -17,14 +17,14 @@ const AdminDashboard = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const usersRes = await axios.get(`${baseUrl}/api/v1/admin/admin/users`, {
+        const usersRes = await axios.get(`${baseUrl}/api/v1/admin/users`, {
           headers: { Authorization: `Bearer ${atoken}` },
         });
-        const doctorsRes = await axios.get(`${baseUrl}/api/v1/admin/admin/getdoctors`, {
+        const doctorsRes = await axios.get(`${baseUrl}/api/v1/admin/getdoctors`, {
           headers: { Authorization: `Bearer ${atoken}` },
         });
         const appointmentsRes = await axios.get(
-          `${baseUrl}/api/v1/admin/admin/appointments`,
+          `${baseUrl}/api/v1/admin/appointments`,
           { headers: { Authorization: `Bearer ${atoken}` } }
         );
 
@@ -45,7 +45,7 @@ const AdminDashboard = () => {
   const handleStatusChange = async (id, status) => {
     try {
       await axios.put(
-        `${baseUrl}/api/v1/admin/admin/appointments/${id}`,
+        `${baseUrl}/api/v1/admin/appointments/${id}`,
         { status },
         { headers: { Authorization: `Bearer ${atoken}` } }
       );
@@ -63,7 +63,7 @@ const AdminDashboard = () => {
   const toggleAvailability = async (id) => {
     try {
       await axios.patch(
-        `${baseUrl}/api/v1/admin/admin/change`,
+        `${baseUrl}/api/v1/admin/change`,
         { userId: id },
         { headers: { Authorization: `Bearer ${atoken}` } }
       );

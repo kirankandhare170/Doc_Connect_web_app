@@ -3,34 +3,36 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { assets } from "./../assets/assets";
 import axios from "axios";
 
+const DEFAULT_PROFILE = "https://res.cloudinary.com/<your-cloud-name>/image/upload/v000000/default-profile.png";
+
 const Nav = () => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [userImage, setUserImage] = useState(null);
+  const [userImage, setUserImage] = useState(DEFAULT_PROFILE);
 
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
+  // Fetch user profile image
   const fetchUser = async () => {
     if (!token || !userId) return;
 
-    const localImage = localStorage.getItem("userImage");
-    if (localImage) {
-      setUserImage(localImage);
-      return;
-    }
-
     try {
-      const res = await axios.post(
-        "https://doc-connect-5g3k.onrender.com/api/v1/user/getuserprofile",
-        { userId }
-      );
-      const image = res.data.user.image;
+      const localImage = localStorage.getItem("userImage");
+      if (localImage) {
+        setUserImage(localImage);
+        return;
+      }
+
+      const res = await axios.get(`https://doc-connect-5g3k.onrender.com/api/v1/user/getuserprofile/${userId}`);
+      const image = res.data.user?.image || DEFAULT_PROFILE;
+
       localStorage.setItem("userImage", image);
       setUserImage(image);
     } catch (err) {
-      console.log("Navbar user fetch error:", err);
+      console.error("Navbar user fetch error:", err);
+      setUserImage(DEFAULT_PROFILE);
     }
   };
 
@@ -47,7 +49,6 @@ const Nav = () => {
 
   return (
     <nav className="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
-      {/* NAVBAR CONTENT */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
 
         {/* LOGO */}
@@ -75,7 +76,7 @@ const Nav = () => {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
                 <img
-                  src={userImage || assets.upload_area}
+                  src={userImage}
                   alt="profile"
                   className="h-10 w-10 rounded-full border object-cover"
                 />
