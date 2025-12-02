@@ -22,7 +22,7 @@ const Appointment = () => {
     const fetchDoctor = async () => {
       try {
         const res = await axios.get(
-          `https://doc-connect-5g3k.onrender.com/api/v1/admin/getdoctor/${docId}`
+          `https://doc-connect-5g3k.onrender.com/api/v1/admin/admin/getdoctor/${docId}`
         );
         if (res.data.success) {
           setDoctor(res.data.doctor);
